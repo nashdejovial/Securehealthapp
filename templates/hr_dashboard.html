@@ -1,0 +1,139 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2>HR Dashboard</h2>
+    
+    <div class="row mt-4">
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Doctor Statistics</h5>
+                    <p>Total Doctors: {{ total_doctors }}</p>
+                    <p>Active Doctors: {{ active_doctors }}</p>
+                    <a href="{{ url_for('manage_doctors') }}" class="btn btn-primary">Manage Doctors</a>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Patient Statistics</h5>
+                    <p>Total Patients: {{ total_patients }}</p>
+                    <p>Today's Appointments: {{ today_appointments }}</p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Financial Overview</h5>
+                    <p>Total Outstanding: ${{ total_outstanding }}</p>
+                    <p>Total Paid: ${{ total_paid }}</p>
+                    <a href="{{ url_for('manage_invoices') }}" class="btn btn-success">Manage Invoices</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row mt-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Doctor Management</h5>
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>Name</th>
+                                <th>Department</th>
+                                <th>Status</th>
+                                <th>Attendance</th>
+                                <th>Salary</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for doctor in doctors %}
+                            <tr>
+                                <td>{{ doctor.name }}</td>
+                                <td>{{ doctor.department }}</td>
+                                <td>{{ "Active" if doctor.status else "Inactive" }}</td>
+                                <td>{{ doctor.attendance }}</td>
+                                <td>${{ doctor.salary }}</td>
+                                <td>
+                                    <button class="btn btn-sm btn-primary" onclick="editDoctor({{ doctor.id }})">Edit</button>
+                                    <button class="btn btn-sm btn-danger" onclick="toggleStatus({{ doctor.id }})">
+                                        {{ "Deactivate" if doctor.status else "Activate" }}
+                                    </button>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Edit Doctor Modal -->
+<div class="modal fade" id="editDoctorModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Edit Doctor Details</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form id="editDoctorForm" method="POST">
+                    <div class="mb-3">
+                        <label class="form-label">Department</label>
+                        <input type="text" class="form-control" name="department" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Attendance</label>
+                        <input type="number" class="form-control" name="attendance" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Salary</label>
+                        <input type="number" class="form-control" name="salary" required>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Save Changes</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block scripts %}
+<script>
+function editDoctor(doctorId) {
+    // Fetch doctor details and populate modal
+    fetch(`/api/doctor/${doctorId}`)
+        .then(response => response.json())
+        .then(data => {
+            document.querySelector('[name="department"]').value = data.department;
+            document.querySelector('[name="attendance"]').value = data.attendance;
+            document.querySelector('[name="salary"]').value = data.salary;
+            document.getElementById('editDoctorForm').action = `/update_doctor/${doctorId}`;
+            new bootstrap.Modal(document.getElementById('editDoctorModal')).show();
+        });
+}
+
+function toggleStatus(doctorId) {
+    if (confirm('Are you sure you want to change this doctor\'s status?')) {
+        fetch(`/toggle_doctor_status/${doctorId}`, { method: 'POST' })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    location.reload();
+                }
+            });
+    }
+}
+</script>
+{% endblock %} 

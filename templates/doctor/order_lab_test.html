@@ -1,0 +1,67 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2>Order Lab Test</h2>
+    
+    <div class="card mb-4">
+        <div class="card-body">
+            <form method="POST">
+                {{ form.csrf_token }}
+                <div class="mb-3">
+                    {{ form.patient_id.label(class="form-label") }}
+                    {{ form.patient_id(class="form-select") }}
+                </div>
+                
+                <div class="mb-3">
+                    {{ form.test_name.label(class="form-label") }}
+                    {{ form.test_name(class="form-control") }}
+                </div>
+                
+                <div class="mb-3">
+                    {{ form.notes.label(class="form-label") }}
+                    {{ form.notes(class="form-control", rows="3") }}
+                </div>
+                
+                <button type="submit" class="btn btn-primary">Order Test</button>
+            </form>
+        </div>
+    </div>
+    
+    <div class="card">
+        <div class="card-header">
+            <h5 class="mb-0">Recent Lab Test Orders</h5>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Date</th>
+                            <th>Patient</th>
+                            <th>Test</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for result in ordered_results %}
+                        <tr>
+                            <td>{{ result.test_date.strftime('%Y-%m-%d') }}</td>
+                            <td>{{ result.patient.name }}</td>
+                            <td>{{ result.test_name }}</td>
+                            <td>
+                                <span class="badge bg-warning">Ordered</span>
+                            </td>
+                            <td>
+                                <a href="{{ url_for('doctor_lab_results') }}" class="btn btn-sm btn-info">View Results</a>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

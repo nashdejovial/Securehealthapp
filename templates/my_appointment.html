@@ -1,0 +1,72 @@
+{% extends "base.html" %}
+
+{% block title %}My Appointments - Health Application{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-md-10">
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="mb-0">{% if user == 'P' %}My Appointments{% else %}Doctor Appointments{% endif %}</h3>
+                </div>
+                <div class="card-body">
+                    {% if data %}
+                        <div class="table-responsive">
+                            <table class="table table-striped">
+                                <thead>
+                                    <tr>
+                                        <th>Date</th>
+                                        <th>Time</th>
+                                        {% if user == 'P' %}
+                                            <th>Doctor</th>
+                                        {% else %}
+                                            <th>Patient</th>
+                                        {% endif %}
+                                        <th>Status</th>
+                                        {% if user == 'D' %}
+                                            <th>Action</th>
+                                        {% endif %}
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for appointment in data %}
+                                        <tr>
+                                            <td>{{ appointment.date }}</td>
+                                            <td>{{ appointment.time }}</td>
+                                            {% if user == 'P' %}
+                                                <td>Dr. {{ appointment.doctor.name }}</td>
+                                            {% else %}
+                                                <td>{{ appointment.patient.name }}</td>
+                                            {% endif %}
+                                            <td>
+                                                {% if appointment.status %}
+                                                    <span class="badge bg-success">Completed</span>
+                                                {% else %}
+                                                    <span class="badge bg-warning">Pending</span>
+                                                {% endif %}
+                                            </td>
+                                            {% if user == 'D' and not appointment.status %}
+                                                <td>
+                                                    <a href="{{ url_for('create_prescription', appointment_id=appointment.id) }}" 
+                                                       class="btn btn-primary btn-sm">
+                                                        Create Prescription
+                                                    </a>
+                                                </td>
+                                            {% endif %}
+                                        </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    {% else %}
+                        <div class="text-center">
+                            <p class="lead">No appointments found.</p>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

@@ -1,0 +1,94 @@
+{% extends "base.html" %}
+
+{% block title %}Create Prescription - Health Application{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="mb-0">Create Prescription</h3>
+                </div>
+                <div class="card-body">
+                    {% with messages = get_flashed_messages() %}
+                        {% if messages %}
+                            {% for message in messages %}
+                                <div class="alert alert-info">{{ message }}</div>
+                            {% endfor %}
+                        {% endif %}
+                    {% endwith %}
+                    
+                    {% if data %}
+                        <form method="POST" action="{{ url_for('create_prescription') }}">
+                            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                            <div class="mb-3">
+                                <label for="appointment" class="form-label">Select Appointment</label>
+                                <select class="form-select" id="appointment" name="appointment" required>
+                                    <option value="">Choose an appointment...</option>
+                                    {% for appointment in data %}
+                                        <option value="{{ appointment.id }}">
+                                            {{ appointment.patient.name }} - {{ appointment.date }} {{ appointment.time }}
+                                        </option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label for="symptoms" class="form-label">Symptoms</label>
+                                <textarea class="form-control" id="symptoms" name="symptoms" rows="3" required></textarea>
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label for="prescription" class="form-label">Prescription</label>
+                                <textarea class="form-control" id="prescription" name="prescription" rows="5" required></textarea>
+                            </div>
+                            
+                            <div class="row">
+                                <div class="col-md-4 mb-3">
+                                    <label for="outstanding" class="form-label">Outstanding Amount</label>
+                                    <input type="number" class="form-control" id="outstanding" name="outstanding" value="0" min="0">
+                                </div>
+                                
+                                <div class="col-md-4 mb-3">
+                                    <label for="paid" class="form-label">Paid Amount</label>
+                                    <input type="number" class="form-control" id="paid" name="paid" value="0" min="0">
+                                </div>
+                                
+                                <div class="col-md-4 mb-3">
+                                    <label for="total" class="form-label">Total Amount</label>
+                                    <input type="number" class="form-control" id="total" name="total" value="0" min="0">
+                                </div>
+                            </div>
+                            
+                            <div class="d-grid">
+                                <button type="submit" class="btn btn-primary">Create Prescription</button>
+                            </div>
+                        </form>
+                    {% else %}
+                        <div class="text-center">
+                            <p class="lead">No pending appointments found.</p>
+                            <a href="{{ url_for('doctor_appointment') }}" class="btn btn-primary">View All Appointments</a>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% block extra_js %}
+<script>
+// Auto-calculate total when outstanding or paid amounts change
+document.getElementById('outstanding').addEventListener('input', calculateTotal);
+document.getElementById('paid').addEventListener('input', calculateTotal);
+
+function calculateTotal() {
+    const outstanding = parseFloat(document.getElementById('outstanding').value) || 0;
+    const paid = parseFloat(document.getElementById('paid').value) || 0;
+    document.getElementById('total').value = outstanding + paid;
+}
+</script>
+{% endblock %}
+
+{% endblock %} 

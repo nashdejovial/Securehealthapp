@@ -1,0 +1,159 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2>Lab Results Management</h2>
+    
+    <!-- New Orders Section -->
+    <div class="card mb-4">
+        <div class="card-header">
+            <h5 class="mb-0">New Test Orders</h5>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Date</th>
+                            <th>Patient</th>
+                            <th>Test</th>
+                            <th>Doctor</th>
+                            <th>Notes</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for result in ordered_results %}
+                        <tr>
+                            <td>{{ result.test_date.strftime('%Y-%m-%d') }}</td>
+                            <td>{{ result.patient.name }}</td>
+                            <td>{{ result.test_name }}</td>
+                            <td>{{ result.doctor.name }}</td>
+                            <td>{{ result.notes }}</td>
+                            <td>
+                                <button type="button" class="btn btn-sm btn-primary" data-bs-toggle="modal" data-bs-target="#processModal{{ result.id }}">
+                                    Process Test
+                                </button>
+                            </td>
+                        </tr>
+                        
+                        <!-- Process Test Modal -->
+                        <div class="modal fade" id="processModal{{ result.id }}" tabindex="-1">
+                            <div class="modal-dialog">
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <h5 class="modal-title">Process Lab Test</h5>
+                                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                                    </div>
+                                    <form method="POST" enctype="multipart/form-data">
+                                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                        <div class="modal-body">
+                                            <input type="hidden" name="result_id" value="{{ result.id }}">
+                                            
+                                            <div class="mb-3">
+                                                <label class="form-label">Patient: {{ result.patient.name }}</label>
+                                            </div>
+                                            <div class="mb-3">
+                                                <label class="form-label">Test: {{ result.test_name }}</label>
+                                            </div>
+                                            <div class="mb-3">
+                                                <label class="form-label">Result Value</label>
+                                                <input type="text" class="form-control" name="result_value" required>
+                                            </div>
+                                            <div class="mb-3">
+                                                <label class="form-label">Reference Range</label>
+                                                <input type="text" class="form-control" name="reference_range" required>
+                                            </div>
+                                            <div class="mb-3">
+                                                <label class="form-label">Notes</label>
+                                                <textarea class="form-control" name="notes" rows="3"></textarea>
+                                            </div>
+                                            <div class="mb-3">
+                                                <label class="form-label">Result File</label>
+                                                <input type="file" class="form-control" name="result_file">
+                                            </div>
+                                        </div>
+                                        <div class="modal-footer">
+                                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                                            <button type="submit" class="btn btn-primary">Submit Results</button>
+                                        </div>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Processing Tests Section -->
+    <div class="card mb-4">
+        <div class="card-header">
+            <h5 class="mb-0">Tests in Progress</h5>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Date</th>
+                            <th>Patient</th>
+                            <th>Test</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for result in processing_results %}
+                        <tr>
+                            <td>{{ result.test_date.strftime('%Y-%m-%d') }}</td>
+                            <td>{{ result.patient.name }}</td>
+                            <td>{{ result.test_name }}</td>
+                            <td>
+                                <span class="badge bg-info">Processing</span>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Completed Tests Section -->
+    <div class="card">
+        <div class="card-header">
+            <h5 class="mb-0">Completed Tests</h5>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Date</th>
+                            <th>Patient</th>
+                            <th>Test</th>
+                            <th>Result</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for result in completed_results %}
+                        <tr>
+                            <td>{{ result.result_date.strftime('%Y-%m-%d') }}</td>
+                            <td>{{ result.patient.name }}</td>
+                            <td>{{ result.test_name }}</td>
+                            <td>{{ result.result_value }}</td>
+                            <td>
+                                <span class="badge bg-success">Completed</span>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

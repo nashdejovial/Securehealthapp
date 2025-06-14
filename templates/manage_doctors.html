@@ -1,0 +1,135 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2>Manage Doctors</h2>
+    
+    <div class="card mt-4">
+        <div class="card-body">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Name</th>
+                        <th>Department</th>
+                        <th>Status</th>
+                        <th>Attendance</th>
+                        <th>Salary</th>
+                        <th>Contact</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for doctor in doctors %}
+                    <tr>
+                        <td>{{ doctor.name }}</td>
+                        <td>
+                            <select class="form-select form-select-sm department-select" data-doctor-id="{{ doctor.id }}">
+                                <option value="Cardiology" {% if doctor.department == 'Cardiology' %}selected{% endif %}>Cardiology</option>
+                                <option value="Neurology" {% if doctor.department == 'Neurology' %}selected{% endif %}>Neurology</option>
+                                <option value="Orthopedics" {% if doctor.department == 'Orthopedics' %}selected{% endif %}>Orthopedics</option>
+                                <option value="Pediatrics" {% if doctor.department == 'Pediatrics' %}selected{% endif %}>Pediatrics</option>
+                                <option value="General Medicine" {% if doctor.department == 'General Medicine' %}selected{% endif %}>General Medicine</option>
+                                <option value="Surgery" {% if doctor.department == 'Surgery' %}selected{% endif %}>Surgery</option>
+                                <option value="Gynecology" {% if doctor.department == 'Gynecology' %}selected{% endif %}>Gynecology</option>
+                                <option value="Dermatology" {% if doctor.department == 'Dermatology' %}selected{% endif %}>Dermatology</option>
+                            </select>
+                        </td>
+                        <td>
+                            <div class="form-check form-switch">
+                                <input class="form-check-input status-toggle" type="checkbox" 
+                                       {% if doctor.status %}checked{% endif %}
+                                       data-doctor-id="{{ doctor.id }}">
+                                <label class="form-check-label">{{ "Active" if doctor.status else "Inactive" }}</label>
+                            </div>
+                        </td>
+                        <td>
+                            <input type="number" class="form-control form-control-sm attendance-input" 
+                                   value="{{ doctor.attendance }}" min="0" max="100"
+                                   data-doctor-id="{{ doctor.id }}">
+                        </td>
+                        <td>
+                            <input type="number" class="form-control form-control-sm salary-input" 
+                                   value="{{ doctor.salary }}" min="0" step="1000"
+                                   data-doctor-id="{{ doctor.id }}">
+                        </td>
+                        <td>
+                            <small>
+                                Email: {{ doctor.email }}<br>
+                                Phone: {{ doctor.phone }}
+                            </small>
+                        </td>
+                        <td>
+                            <button class="btn btn-sm btn-primary save-changes" data-doctor-id="{{ doctor.id }}">
+                                Save Changes
+                            </button>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+{% block extra_js %}
+<script>
+// Get CSRF token from meta tag
+const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+
+document.querySelectorAll('.status-toggle').forEach(toggle => {
+    toggle.addEventListener('change', function() {
+        const doctorId = this.dataset.doctorId;
+        fetch(`/toggle_doctor_status/${doctorId}`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': csrfToken
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                const label = this.nextElementSibling;
+                label.textContent = this.checked ? 'Active' : 'Inactive';
+            } else {
+                alert('Failed to update status');
+                this.checked = !this.checked;
+            }
+        });
+    });
+});
+
+document.querySelectorAll('.save-changes').forEach(button => {
+    button.addEventListener('click', function() {
+        const doctorId = this.dataset.doctorId;
+        const row = this.closest('tr');
+        const department = row.querySelector('.department-select').value;
+        const attendance = row.querySelector('.attendance-input').value;
+        const salary = row.querySelector('.salary-input').value;
+
+        const formData = new FormData();
+        formData.append('csrf_token', csrfToken);
+        formData.append('department', department);
+        formData.append('attendance', attendance);
+        formData.append('salary', salary);
+
+        fetch(`/update_doctor/${doctorId}`, {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': csrfToken
+            },
+            body: formData
+        })
+        .then(response => {
+            if (response.ok) {
+                alert('Changes saved successfully');
+            } else {
+                alert('Failed to save changes');
+            }
+        });
+    });
+});
+</script>
+{% endblock %}
+
+{% endblock %} 

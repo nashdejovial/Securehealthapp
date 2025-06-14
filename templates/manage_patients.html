@@ -1,0 +1,127 @@
+{% extends "base.html" %}
+
+{% block title %}Manage Patients - Health Application{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2>Manage Patients</h2>
+    
+    <div class="card mt-4">
+        <div class="card-body">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Name</th>
+                        <th>Age</th>
+                        <th>Gender</th>
+                        <th>Blood Group</th>
+                        <th>Contact</th>
+                        <th>Medical History</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for patient in patients %}
+                    <tr>
+                        <td>{{ patient.name }}</td>
+                        <td>{{ patient.age }}</td>
+                        <td>{{ patient.gender }}</td>
+                        <td>{{ patient.blood }}</td>
+                        <td>
+                            <small>
+                                Email: {{ patient.email }}<br>
+                                Phone: {{ patient.phone }}
+                            </small>
+                        </td>
+                        <td>{{ patient.medical }}</td>
+                        <td>
+                            <form method="POST" action="{{ url_for('delete_patient', patient_id=patient.id) }}" 
+                                  style="display: inline;"
+                                  onsubmit="return confirm('Are you sure you want to delete {{ patient.name }}? This action cannot be undone.');">
+                                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                <button type="submit" class="btn btn-sm btn-danger">Delete</button>
+                            </form>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- Delete Confirmation Modal -->
+<div class="modal fade" id="deleteModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Confirm Delete</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                Are you sure you want to delete <span id="patientName"></span>? This action cannot be undone.
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-danger" id="confirmDelete">Delete</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% block extra_js %}
+<script>
+// Get CSRF token from meta tag
+const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+
+let patientToDelete = null;
+const deleteModal = new bootstrap.Modal(document.getElementById('deleteModal'));
+
+document.querySelectorAll('.delete-patient').forEach(button => {
+    button.addEventListener('click', function() {
+        patientToDelete = this.dataset.patientId;
+        document.getElementById('patientName').textContent = this.dataset.patientName;
+        deleteModal.show();
+    });
+});
+
+document.getElementById('confirmDelete').addEventListener('click', function() {
+    if (!patientToDelete) return;
+
+    fetch(`/delete_patient/${patientToDelete}`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': csrfToken
+        },
+        body: JSON.stringify({
+            csrf_token: csrfToken
+        })
+    })
+    .then(response => {
+        if (!response.ok) {
+            throw new Error('Network response was not ok');
+        }
+        return response.json();
+    })
+    .then(data => {
+        if (data.success) {
+            // Remove the row from the table
+            const row = document.querySelector(`[data-patient-id="${patientToDelete}"]`).closest('tr');
+            row.remove();
+            deleteModal.hide();
+            // Show success message
+            alert('Patient deleted successfully');
+        } else {
+            throw new Error(data.error || 'Failed to delete patient');
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('Error deleting patient: ' + error.message);
+    });
+});
+</script>
+{% endblock %}
+
+{% endblock %} 

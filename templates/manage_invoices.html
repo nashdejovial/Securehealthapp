@@ -1,0 +1,123 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2>Manage Invoices</h2>
+    
+    <div class="card mt-4">
+        <div class="card-body">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Patient Name</th>
+                        <th>Outstanding Amount</th>
+                        <th>Paid Amount</th>
+                        <th>Total Amount</th>
+                        <th>Contact</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for invoice in invoices %}
+                    <tr>
+                        <td>{{ invoice.patient.name }}</td>
+                        <td>
+                            <input type="number" class="form-control form-control-sm outstanding-input" 
+                                   value="{{ invoice.outstanding or 0 }}" min="0" step="100"
+                                   data-invoice-id="{{ invoice.id }}">
+                        </td>
+                        <td>
+                            <input type="number" class="form-control form-control-sm paid-input" 
+                                   value="{{ invoice.paid or 0 }}" min="0" step="100"
+                                   data-invoice-id="{{ invoice.id }}">
+                        </td>
+                        <td>
+                            $<span class="total-amount">{{ (invoice.outstanding|float or 0) + (invoice.paid|float or 0) }}</span>
+                        </td>
+                        <td>
+                            <small>
+                                Email: {{ invoice.patient.email }}<br>
+                                Phone: {{ invoice.patient.phone }}
+                            </small>
+                        </td>
+                        <td>
+                            <button class="btn btn-sm btn-primary save-invoice" data-invoice-id="{{ invoice.id }}">
+                                Save Changes
+                            </button>
+                            <a href="{{ url_for('generate_invoice_pdf', invoice_id=invoice.id) }}" 
+                               class="btn btn-sm btn-info">
+                                Generate PDF
+                            </a>
+                            <button class="btn btn-sm btn-success send-email" data-invoice-id="{{ invoice.id }}">
+                                Send Email
+                            </button>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+{% block extra_js %}
+<script>
+// Update total amount when outstanding or paid amounts change
+function updateTotal(row) {
+    const outstanding = parseFloat(row.querySelector('.outstanding-input').value) || 0;
+    const paid = parseFloat(row.querySelector('.paid-input').value) || 0;
+    row.querySelector('.total-amount').textContent = (outstanding + paid).toFixed(2);
+}
+
+// Add event listeners to amount inputs
+document.querySelectorAll('.outstanding-input, .paid-input').forEach(input => {
+    input.addEventListener('input', function() {
+        updateTotal(this.closest('tr'));
+    });
+});
+
+// Save invoice changes
+document.querySelectorAll('.save-invoice').forEach(button => {
+    button.addEventListener('click', function() {
+        const invoiceId = this.dataset.invoiceId;
+        const row = this.closest('tr');
+        const outstanding = row.querySelector('.outstanding-input').value;
+        const paid = row.querySelector('.paid-input').value;
+
+        const formData = new FormData();
+        formData.append('outstanding', outstanding);
+        formData.append('paid', paid);
+
+        fetch(`/update_invoice/${invoiceId}`, {
+            method: 'POST',
+            body: formData
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                alert('Invoice updated successfully');
+            } else {
+                alert('Failed to update invoice');
+            }
+        });
+    });
+});
+
+// Send invoice email
+document.querySelectorAll('.send-email').forEach(button => {
+    button.addEventListener('click', function() {
+        const invoiceId = this.dataset.invoiceId;
+        fetch(`/send_invoice_email/${invoiceId}`)
+            .then(response => {
+                if (response.ok) {
+                    alert('Invoice email sent successfully');
+                } else {
+                    alert('Failed to send invoice email');
+                }
+            });
+    });
+});
+</script>
+{% endblock %}
+
+{% endblock %} 

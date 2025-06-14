@@ -1,0 +1,172 @@
+{% extends "base.html" %}
+
+{% block title %}Home - Health Application{% endblock %}
+
+{% block content %}
+<div class="container">
+    <!-- Hero Section -->
+    <div class="row justify-content-center align-items-center mb-5">
+        <div class="col-md-6 text-center">
+            <h1 class="display-4 mb-4">Welcome to HealthApp</h1>
+            <p class="lead">Your Comprehensive Health Application Solution</p>
+            {% if not current_user.is_authenticated %}
+            <div class="mt-4">
+                <a href="{{ url_for('login') }}" class="btn btn-primary btn-lg me-3">Login</a>
+                <a href="{{ url_for('register') }}" class="btn btn-outline-primary btn-lg">Register</a>
+            </div>
+            {% endif %}
+        </div>
+        <div class="col-md-6">
+            <img src="{{ url_for('static', filename='images/hero-image.jpg') }}" alt="Healthcare" class="img-fluid rounded shadow">
+        </div>
+    </div>
+
+    {% if current_user.is_authenticated %}
+    <!-- Authenticated User Features -->
+    <div class="row mt-5">
+        <div class="col-md-4 mb-4">
+            <div class="card h-100 shadow-sm">
+                <img src="{{ url_for('static', filename='images/appointments.jpg') }}" class="card-img-top" alt="Appointments">
+                <div class="card-body">
+                    <h5 class="card-title">Appointments</h5>
+                    <p class="card-text">Manage your appointments and schedules efficiently.</p>
+                    {% if current_user.role == 'patient' %}
+                        <a href="{{ url_for('myappointment') }}" class="btn btn-primary">View Appointments</a>
+                    {% elif current_user.role == 'doctor' %}
+                        <a href="{{ url_for('doctor_appointment') }}" class="btn btn-primary">View Appointments</a>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        
+        {% if current_user.role == 'patient' %}
+        <div class="col-md-4 mb-4">
+            <div class="card h-100 shadow-sm">
+                <img src="{{ url_for('static', filename='images/medical-history.jpg') }}" class="card-img-top" alt="Medical History">
+                <div class="card-body">
+                    <h5 class="card-title">Medical History</h5>
+                    <p class="card-text">Access your complete medical records and history securely.</p>
+                    <a href="{{ url_for('medical_history') }}" class="btn btn-primary">View History</a>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-4 mb-4">
+            <div class="card h-100 shadow-sm">
+                <img src="{{ url_for('static', filename='images/prescriptions.jpg') }}" class="card-img-top" alt="Prescriptions">
+                <div class="card-body">
+                    <h5 class="card-title">Prescriptions</h5>
+                    <p class="card-text">View and manage your prescriptions in one place.</p>
+                    <a href="{{ url_for('create_prescription') }}" class="btn btn-primary">View Prescriptions</a>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+
+        <div class="col-md-4 mb-4">
+            <div class="card h-100 shadow-sm">
+                <img src="{{ url_for('static', filename='images/profile.jpg') }}" class="card-img-top" alt="Profile">
+                <div class="card-body">
+                    <h5 class="card-title">Profile</h5>
+                    <p class="card-text">Manage your personal information and preferences.</p>
+                    <a href="#" class="btn btn-primary">View Profile</a>
+                </div>
+            </div>
+        </div>
+    </div>
+        
+    {% else %}
+    <!-- Features Section for Non-authenticated Users -->
+    <div class="row mt-5">
+        <h2 class="text-center mb-4">Our Services</h2>
+        <div class="col-md-4 mb-4">
+            <div class="card h-100 shadow-sm">
+                <img src="{{ url_for('static', filename='images/patient-care.jpg') }}" class="card-img-top" alt="Patient Care">
+                <div class="card-body">
+                    <h5 class="card-title">For Patients</h5>
+                    <p class="card-text">Register as a patient to book appointments, access medical records, and more.</p>
+                    <a href="{{ url_for('register') }}" class="btn btn-primary">Register Now</a>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4 mb-4">
+            <div class="card h-100 shadow-sm">
+                <img src="{{ url_for('static', filename='images/doctors.jpg') }}" class="card-img-top" alt="Doctors">
+                <div class="card-body">
+                    <h5 class="card-title">For Doctors</h5>
+                    <p class="card-text">Join our medical team to manage appointments and provide excellent patient care.</p>
+                    <a href="{{ url_for('register') }}" class="btn btn-primary">Join Us</a>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4 mb-4">
+            <div class="card h-100 shadow-sm">
+                <img src="{{ url_for('static', filename='images/lab-services.jpg') }}" class="card-img-top" alt="Lab Services">
+                <div class="card-body">
+                    <h5 class="card-title">Lab Services</h5>
+                    <p class="card-text">State-of-the-art laboratory services with quick and accurate results.</p>
+                    <a href="{{ url_for('about') }}" class="btn btn-primary">Learn More</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Features Highlight Section -->
+    <div class="row mt-5 mb-5">
+        <div class="col-12 text-center mb-4">
+            <h2>Why Choose HealthApp?</h2>
+        </div>
+        <div class="col-md-3 text-center mb-4">
+            <div class="feature-icon mb-3">
+                <img src="{{ url_for('static', filename='images/icon-security.png') }}" alt="Security" width="64">
+            </div>
+            <h5>Secure & Private</h5>
+            <p>Your medical data is protected with industry-standard security.</p>
+        </div>
+        <div class="col-md-3 text-center mb-4">
+            <div class="feature-icon mb-3">
+                <img src="{{ url_for('static', filename='images/icon-easy.png') }}" alt="Easy to Use" width="64">
+            </div>
+            <h5>Easy to Use</h5>
+            <p>Intuitive interface designed for all users.</p>
+        </div>
+        <div class="col-md-3 text-center mb-4">
+            <div class="feature-icon mb-3">
+                <img src="{{ url_for('static', filename='images/icon-access.png') }}" alt="24/7 Access" width="64">
+            </div>
+            <h5>24/7 Access</h5>
+            <p>Access your health information anytime, anywhere.</p>
+        </div>
+        <div class="col-md-3 text-center mb-4">
+            <div class="feature-icon mb-3">
+                <img src="{{ url_for('static', filename='images/icon-support.png') }}" alt="Support" width="64">
+            </div>
+            <h5>Expert Support</h5>
+            <p>Dedicated support team to help you.</p>
+        </div>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+.card {
+    transition: transform 0.2s;
+    border: none;
+}
+.card:hover {
+    transform: translateY(-5px);
+}
+.card-img-top {
+    height: 200px;
+    object-fit: cover;
+}
+.feature-icon {
+    background-color: #f8f9fa;
+    padding: 20px;
+    border-radius: 50%;
+    display: inline-block;
+}
+</style>
+{% endblock %} 

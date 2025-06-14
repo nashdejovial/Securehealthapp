@@ -1,0 +1,129 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2>Update Patient Record</h2>
+    
+    <!-- Patient Information -->
+    <div class="card mb-4">
+        <div class="card-header">
+            <h4>Patient Information</h4>
+        </div>
+        <div class="card-body">
+            <form method="POST">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <label class="form-label">Name</label>
+                            <p class="form-control-static">{{ patient.name }}</p>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Age</label>
+                            <p class="form-control-static">{{ patient.age }}</p>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Gender</label>
+                            <p class="form-control-static">{{ patient.gender }}</p>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <label class="form-label">Blood Group</label>
+                            <p class="form-control-static">{{ patient.blood }}</p>
+                        </div>
+                        <div class="mb-3">
+                            <label for="medical_history" class="form-label">Medical History</label>
+                            <textarea class="form-control" id="medical_history" name="medical_history" rows="3">{{ patient.medical }}</textarea>
+                        </div>
+                        <div class="mb-3">
+                            <label for="case" class="form-label">Current Case</label>
+                            <textarea class="form-control" id="case" name="case" rows="3">{{ patient.case }}</textarea>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="mb-3">
+                    <label for="symptoms" class="form-label">Symptoms</label>
+                    <textarea class="form-control" id="symptoms" name="symptoms" rows="3"></textarea>
+                </div>
+                
+                <div class="mb-3">
+                    <label for="prescription" class="form-label">Prescription</label>
+                    <textarea class="form-control" id="prescription" name="prescription" rows="3"></textarea>
+                </div>
+                
+                <button type="submit" class="btn btn-primary">Update Record</button>
+            </form>
+        </div>
+    </div>
+    
+    <!-- Medical History -->
+    <div class="card mb-4">
+        <div class="card-header">
+            <h4>Medical History</h4>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th>Date</th>
+                            <th>Symptoms</th>
+                            <th>Prescription</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for prescription in prescriptions %}
+                        <tr>
+                            <td>{{ prescription.prescribed_date.strftime('%Y-%m-%d') }}</td>
+                            <td>{{ prescription.symptoms }}</td>
+                            <td>{{ prescription.prescription }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Lab Results -->
+    <div class="card">
+        <div class="card-header">
+            <h4>Lab Results</h4>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th>Date</th>
+                            <th>Test Name</th>
+                            <th>Result</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for result in lab_results %}
+                        <tr>
+                            <td>{{ result.test_date.strftime('%Y-%m-%d') }}</td>
+                            <td>{{ result.test_name }}</td>
+                            <td>{{ result.result_value }}</td>
+                            <td>
+                                <span class="badge {% if result.status == 'completed' %}bg-success{% else %}bg-warning{% endif %}">
+                                    {{ result.status }}
+                                </span>
+                            </td>
+                            <td>
+                                <a href="{{ url_for('view_lab_result', result_id=result.id) }}" class="btn btn-sm btn-info">View</a>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

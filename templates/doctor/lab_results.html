@@ -1,0 +1,228 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2>Lab Results Management</h2>
+    
+    <div class="mb-4">
+        <a href="{{ url_for('order_lab_test') }}" class="btn btn-primary">Order New Lab Test</a>
+    </div>
+    
+    <!-- Ordered Tests Section -->
+    <div class="card mb-4">
+        <div class="card-header">
+            <h5 class="mb-0">Ordered Tests</h5>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Date</th>
+                            <th>Patient</th>
+                            <th>Test</th>
+                            <th>Notes</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for result in ordered_results %}
+                        <tr>
+                            <td>{{ result.test_date.strftime('%Y-%m-%d') }}</td>
+                            <td>{{ result.patient.name }}</td>
+                            <td>{{ result.test_name }}</td>
+                            <td>{{ result.notes }}</td>
+                            <td>
+                                <span class="badge bg-warning">Ordered</span>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Completed Tests Section -->
+    <div class="card mb-4">
+        <div class="card-header">
+            <h5 class="mb-0">Completed Tests</h5>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Date</th>
+                            <th>Patient</th>
+                            <th>Test</th>
+                            <th>Result</th>
+                            <th>Reference Range</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for result in completed_results %}
+                        <tr>
+                            <td>{{ result.result_date.strftime('%Y-%m-%d') }}</td>
+                            <td>{{ result.patient.name }}</td>
+                            <td>{{ result.test_name }}</td>
+                            <td>{{ result.result_value }}</td>
+                            <td>{{ result.reference_range }}</td>
+                            <td>
+                                <span class="badge bg-success">Completed</span>
+                            </td>
+                            <td>
+                                <button type="button" class="btn btn-sm btn-primary" data-bs-toggle="modal" data-bs-target="#reviewModal{{ result.id }}">
+                                    Review Results
+                                </button>
+                            </td>
+                        </tr>
+                        
+                        <!-- Review Results Modal -->
+                        <div class="modal fade" id="reviewModal{{ result.id }}" tabindex="-1">
+                            <div class="modal-dialog">
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <h5 class="modal-title">Review Lab Results</h5>
+                                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                                    </div>
+                                    <form method="POST">
+                                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                        <div class="modal-body">
+                                            <input type="hidden" name="result_id" value="{{ result.id }}">
+                                            
+                                            <div class="mb-3">
+                                                <label class="form-label">Patient: {{ result.patient.name }}</label>
+                                            </div>
+                                            <div class="mb-3">
+                                                <label class="form-label">Test: {{ result.test_name }}</label>
+                                            </div>
+                                            <div class="mb-3">
+                                                <label class="form-label">Result: {{ result.result_value }}</label>
+                                            </div>
+                                            <div class="mb-3">
+                                                <label class="form-label">Reference Range: {{ result.reference_range }}</label>
+                                            </div>
+                                            {% if result.notes %}
+                                            <div class="mb-3">
+                                                <label class="form-label">Lab Technician Notes:</label>
+                                                <p>{{ result.notes }}</p>
+                                            </div>
+                                            {% endif %}
+                                            {% if result.file_path %}
+                                            <div class="mb-3">
+                                                <a href="{{ result.file_path }}" class="btn btn-sm btn-info" target="_blank">View Result File</a>
+                                            </div>
+                                            {% endif %}
+                                            <div class="mb-3">
+                                                <label for="doctor_notes" class="form-label">Your Notes</label>
+                                                <textarea class="form-control" id="doctor_notes" name="doctor_notes" rows="3" required></textarea>
+                                            </div>
+                                        </div>
+                                        <div class="modal-footer">
+                                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                                            <button type="submit" class="btn btn-primary">Submit Review</button>
+                                        </div>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Reviewed Tests Section -->
+    <div class="card">
+        <div class="card-header">
+            <h5 class="mb-0">Reviewed Tests</h5>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Date</th>
+                            <th>Patient</th>
+                            <th>Test</th>
+                            <th>Result</th>
+                            <th>Review Date</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for result in reviewed_results %}
+                        <tr>
+                            <td>{{ result.result_date.strftime('%Y-%m-%d') }}</td>
+                            <td>{{ result.patient.name }}</td>
+                            <td>{{ result.test_name }}</td>
+                            <td>{{ result.result_value }}</td>
+                            <td>{{ result.reviewed_at.strftime('%Y-%m-%d') }}</td>
+                            <td>
+                                <span class="badge bg-info">Reviewed</span>
+                            </td>
+                            <td>
+                                <button type="button" class="btn btn-sm btn-info" data-bs-toggle="modal" data-bs-target="#viewModal{{ result.id }}">
+                                    View Details
+                                </button>
+                            </td>
+                        </tr>
+                        
+                        <!-- View Details Modal -->
+                        <div class="modal fade" id="viewModal{{ result.id }}" tabindex="-1">
+                            <div class="modal-dialog">
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <h5 class="modal-title">Lab Result Details</h5>
+                                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                                    </div>
+                                    <div class="modal-body">
+                                        <div class="mb-3">
+                                            <label class="form-label">Patient: {{ result.patient.name }}</label>
+                                        </div>
+                                        <div class="mb-3">
+                                            <label class="form-label">Test: {{ result.test_name }}</label>
+                                        </div>
+                                        <div class="mb-3">
+                                            <label class="form-label">Result: {{ result.result_value }}</label>
+                                        </div>
+                                        <div class="mb-3">
+                                            <label class="form-label">Reference Range: {{ result.reference_range }}</label>
+                                        </div>
+                                        {% if result.notes %}
+                                        <div class="mb-3">
+                                            <label class="form-label">Lab Technician Notes:</label>
+                                            <p>{{ result.notes }}</p>
+                                        </div>
+                                        {% endif %}
+                                        {% if result.doctor_notes %}
+                                        <div class="mb-3">
+                                            <label class="form-label">Your Review Notes:</label>
+                                            <p>{{ result.doctor_notes }}</p>
+                                        </div>
+                                        {% endif %}
+                                        {% if result.file_path %}
+                                        <div class="mb-3">
+                                            <a href="{{ result.file_path }}" class="btn btn-sm btn-info" target="_blank">View Result File</a>
+                                        </div>
+                                        {% endif %}
+                                    </div>
+                                    <div class="modal-footer">
+                                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 
