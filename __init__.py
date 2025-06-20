@@ -3,8 +3,9 @@ from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager
 from datetime import timedelta
 import os
-from extensions import db
 
+# Initialize extensions
+db = SQLAlchemy()
 login_manager = LoginManager()
 
 @login_manager.user_loader
@@ -19,16 +20,16 @@ def create_app():
     app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', 'your-secret-key-here')
     
     # Configure session
-    app.config['PERMANENT_SESSION_LIFETIME'] = timedelta(days=1)  # Sessions last for 1 day
-    app.config['SESSION_COOKIE_SECURE'] = False  # Set to True in production with HTTPS
+    app.config['PERMANENT_SESSION_LIFETIME'] = timedelta(days=1)
+    app.config['SESSION_COOKIE_SECURE'] = False
     app.config['SESSION_COOKIE_HTTPONLY'] = True
     app.config['SESSION_COOKIE_SAMESITE'] = 'Lax'
-    app.config['REMEMBER_COOKIE_DURATION'] = timedelta(days=14)  # Remember me cookie lasts 14 days
-    app.config['REMEMBER_COOKIE_SECURE'] = False  # Set to True in production with HTTPS
+    app.config['REMEMBER_COOKIE_DURATION'] = timedelta(days=14)
+    app.config['REMEMBER_COOKIE_SECURE'] = False
     app.config['REMEMBER_COOKIE_HTTPONLY'] = True
     
     # Database configuration
-    app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('DATABASE_URL', 'sqlite:///health.db')
+    app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('DATABASE_URL', 'mysql://securehealthapp:your-password-here@securehealthapp.mysql.pythonanywhere-services.com/securehealthapp$default')
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
     
     # Initialize extensions
@@ -36,5 +37,9 @@ def create_app():
     login_manager.init_app(app)
     login_manager.login_view = 'login'
     login_manager.session_protection = 'strong'
+    
+    # Import and register blueprints
+    from routes import register_routes
+    register_routes(app, db)
     
     return app
