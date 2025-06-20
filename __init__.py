@@ -3,13 +3,13 @@ from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager
 from datetime import timedelta
 import os
-from healthapp.extensions import db
+from extensions import db
 
 login_manager = LoginManager()
 
 @login_manager.user_loader
 def load_user(user_id):
-    from healthapp.models import User
+    from models import User
     return User.query.get(int(user_id))
 
 def create_app():
