@@ -1,14 +1,11 @@
-from flask import Flask
-from flask_sqlalchemy import SQLAlchemy
-from flask_migrate import Migrate, upgrade
-from app import app, db
+from flask_script import Manager
+from flask_migrate import Migrate, MigrateCommand
+from Securehealthapp import create_app, db
 
+app = create_app()
+manager = Manager(app)
 migrate = Migrate(app, db)
+manager.add_command('db', MigrateCommand)
 
 if __name__ == '__main__':
-    with app.app_context():
-        # Create all tables
-        db.create_all()
-        
-        # Stamp the database with the latest migration
-        upgrade() 
+    manager.run()

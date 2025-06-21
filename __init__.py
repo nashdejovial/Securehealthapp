@@ -1,40 +1,31 @@
 from flask import Flask
-from flask_sqlalchemy import SQLAlchemy
-from flask_login import LoginManager
-from datetime import timedelta
-import os
-from healthapp.extensions import db
+from .config import config
+from .extensions import db, migrate, login_manager
 
-login_manager = LoginManager()
-
-@login_manager.user_loader
-def load_user(user_id):
-    from healthapp.models import User
-    return User.query.get(int(user_id))
-
-def create_app():
+def create_app(config_name='default'):
+    """
+    Application factory function.
+    """
     app = Flask(__name__)
-    
-    # Configure secret key
-    app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', 'your-secret-key-here')
-    
-    # Configure session
-    app.config['PERMANENT_SESSION_LIFETIME'] = timedelta(days=1)  # Sessions last for 1 day
-    app.config['SESSION_COOKIE_SECURE'] = False  # Set to True in production with HTTPS
-    app.config['SESSION_COOKIE_HTTPONLY'] = True
-    app.config['SESSION_COOKIE_SAMESITE'] = 'Lax'
-    app.config['REMEMBER_COOKIE_DURATION'] = timedelta(days=14)  # Remember me cookie lasts 14 days
-    app.config['REMEMBER_COOKIE_SECURE'] = False  # Set to True in production with HTTPS
-    app.config['REMEMBER_COOKIE_HTTPONLY'] = True
-    
-    # Database configuration
-    app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('DATABASE_URL', 'sqlite:///health.db')
-    app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-    
-    # Initialize extensions
+    app.config.from_object(config[config_name])
+    config[config_name].init_app(app)
+
+    # Initialize Flask extensions
     db.init_app(app)
+    migrate.init_app(app, db)
     login_manager.init_app(app)
-    login_manager.login_view = 'login'
-    login_manager.session_protection = 'strong'
     
+    # Configure login manager
+    login_manager.login_view = 'login' # The endpoint for the login route
+    login_manager.login_message = "Veuillez vous connecter pour accéder à cette page."
+    login_manager.login_message_category = "info"
+
+    # Import and register routes
+    with app.app_context():
+        from . import routes
+        routes.register_routes(app, db)
+
+    # Import models to be seen by Flask-Migrate
+    from . import models
+
     return app

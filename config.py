@@ -17,9 +17,11 @@ class Config:
     SESSION_COOKIE_SAMESITE = 'Lax'
     PERMANENT_SESSION_LIFETIME = timedelta(minutes=30)
     
-    # PostgreSQL Database
+    # Database Configuration for MySQL
+    # For PythonAnywhere, the URI should be in the format:
+    # 'mysql+mysqlconnector://<username>:<password>@<username>.mysql.pythonanywhere-services.com/<databasename>'
     SQLALCHEMY_DATABASE_URI = os.environ.get('DATABASE_URL') or \
-        'postgresql://postgres:shifu@localhost:5432/secure_healthap'
+        'mysql+mysqldb://root:nums@localhost/mysite_db'
     
     @staticmethod
     def init_app(app):
