@@ -1,13 +1,13 @@
 from flask import Flask, render_template
-from config import config
-from extensions import init_extensions, db, login_manager, csrf
+from .config import config
+from .extensions import init_extensions, db, login_manager, csrf
 from flask_migrate import Migrate
 import os
 import logging
 from logging.handlers import RotatingFileHandler
-from models import User, Patient, Doctor, Receptionist, HR, Appointment, Prescription, Invoice, LabTech, LabResult, DoctorSchedule
-from routes import register_routes
-from init_db import init_db
+from .models import User, Patient, Doctor, Receptionist, HR, Appointment, Prescription, Invoice, LabTech, LabResult, DoctorSchedule
+from .routes import register_routes
+from .init_db import init_db
 from flask_login import LoginManager
 
 def create_app(config_name='default'):

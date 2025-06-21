@@ -1,0 +1,24 @@
+services:
+  - type: web
+    name: securehealth-app
+    env: python
+    buildCommand: pip install -r requirements.txt
+    startCommand: gunicorn wsgi:app
+    envVars:
+      - key: FLASK_APP
+        value: app.py
+      - key: FLASK_ENV
+        value: production
+      - key: PYTHON_VERSION
+        value: 3.9.12
+      - key: SECRET_KEY
+        generateValue: true
+      - key: DATABASE_URL
+        fromDatabase:
+          name: securehealth-db
+          property: connectionString
+
+databases:
+  - name: securehealth-db
+    databaseName: securehealth
+    plan: free 

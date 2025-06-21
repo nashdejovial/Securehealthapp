@@ -11,10 +11,13 @@ def create_app(config_name='default'):
     config[config_name].init_app(app)
 
     # Initialize Flask extensions
+
+
     db.init_app(app)
     migrate.init_app(app, db)
     login_manager.init_app(app)
     
+
     # Configure login manager
     login_manager.login_view = 'login' # The endpoint for the login route
     login_manager.login_message = "Veuillez vous connecter pour accéder à cette page."
@@ -29,3 +32,4 @@ def create_app(config_name='default'):
     from . import models
 
     return app
+
