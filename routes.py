@@ -6,10 +6,10 @@ from datetime import datetime, time
 from flask_wtf import FlaskForm
 from wtforms import StringField, PasswordField, TimeField, IntegerField, TextAreaField
 from wtforms.validators import DataRequired, NumberRange
-from models import User, Patient, Doctor, Receptionist, HR, Appointment, Prescription, Invoice, LabResult, DoctorSchedule, LabTech
+from .models import User, Patient, Doctor, Receptionist, HR, Appointment, Prescription, Invoice, LabResult, DoctorSchedule, LabTech
 import os
 import pdfkit
-from forms import LabTestForm, ProcessLabResultForm
+from .forms import LabTestForm, ProcessLabResultForm
 from werkzeug.datastructures import MultiDict
 
 
