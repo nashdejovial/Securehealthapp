@@ -68,22 +68,72 @@ flask run
 ```
 
 ## Project Structure
-
 ```
 health-application/
-├── app.py
-├── config.py
-├── models.py
-├── routes.py
-├── static/
-│   ├── css/
-│   ├── js/
-│   └── uploads/
-├── templates/
-│   ├── base.html
-│   ├── home.html
-│   └── ...
-└── requirements.txt
+├── app.py                      # Main application file
+├── config.py                   # Configuration settings
+├── models.py                   # Database models and schemas
+├── routes.py                   # URL routes and view functions
+├── forms.py                    # Form definitions
+├── extensions.py              # Flask extensions initialization
+├── __init__.py                # Application factory
+├── wsgi.py                    # WSGI application entry point
+├── pa_wsgi.py                # PythonAnywhere WSGI configuration
+├── cli.py                     # CLI commands
+├── manage.py                  # Management script
+│
+├── static/                    # Static assets
+│   ├── css/                  # Stylesheets
+│   │   └── style.css        # Main stylesheet
+│   ├── js/                  # JavaScript files
+│   │   └── main.js         # Main JavaScript
+│   └── images/              # Image assets
+│
+├── templates/                 # Jinja2 HTML templates
+│   ├── base.html             # Base template
+│   ├── home.html             # Homepage
+│   ├── login.html            # Login page
+│   ├── register.html         # Registration page
+│   ├── about.html            # About page
+│   ├── patient/              # Patient-related templates
+│   │   ├── dashboard.html
+│   │   ├── appointments.html
+│   │   └── medical_history.html
+│   ├── doctor/               # Doctor-related templates
+│   │   ├── dashboard.html
+│   │   ├── prescriptions.html
+│   │   └── patients.html
+│   ├── receptionist/         # Receptionist-related templates
+│   │   ├── dashboard.html
+│   │   └── appointments.html
+│   ├── hr/                   # HR-related templates
+│   │   ├── dashboard.html
+│   │   └── staff.html
+│   └── errors/               # Error templates
+│       ├── 404.html
+│       └── 500.html
+│
+├── migrations/               # Database migrations
+│   ├── versions/
+│   ├── alembic.ini
+│   ├── env.py
+│   └── script.py.mako
+│
+├── instance/                # Instance-specific files
+│   └── config.py           # Instance configuration
+│
+├── tests/                   # Test suite
+│   ├── __init__.py
+│   ├── test_models.py
+│   └── test_routes.py
+│
+├── media/                   # Media file storage
+│   └── uploads/            # User uploads
+│
+├── requirements.txt         # Python dependencies
+├── .env                    # Environment variables (not in git)
+├── .gitignore             # Git ignore file
+└── README.md              # Project documentation
 ```
 
 ## Contributing
